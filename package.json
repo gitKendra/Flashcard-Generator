@@ -1,0 +1,24 @@
+{
+  "name": "Flashcard-Generator",
+  "version": "1.0.0",
+  "description": "Backend of a flashcard app that allows you to create flashcards",
+  "main": "BasicCard.js",
+  "dependencies": {
+    "inquirer": "^3.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gitKendra/Flashcard-Generator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gitKendra/Flashcard-Generator/issues"
+  },
+  "homepage": "https://github.com/gitKendra/Flashcard-Generator#readme"
+}
