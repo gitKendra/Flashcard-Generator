@@ -18,10 +18,9 @@ for(var i = 0; i < basic.length; i++){
 
 // Add cloze flash cards from file
 for(var i = 0; i < cloze.length; i++){
-	var newClozeCard = new ClozeCard(cloze[i].partial, cloze[i].cloze);
+	var newClozeCard = new ClozeCard(cloze[i].text, cloze[i].cloze);
 	clozeArr.push(newClozeCard);
 }
-console.log(clozeArr);
 
 // Quiz user on flashcards
 inquirer.prompt([
@@ -32,19 +31,16 @@ inquirer.prompt([
 	choices: ['Basic card', 'Cloze card'],
 }
 ]).then(function(answers){
-	if(answers.cardType === 'Basic card'){
-		console.log("You have chosen Basic card.");
+	console.log("");
+	if(answers.cardType === 'Basic card')
 		askBasicCard(basicArr.length);
-	}
-	else{
-		console.log("You have chosen Cloze card.");
+	else
 		askClozeCard(clozeArr.length);
-	}
 });
 
 // Recursive function to ask user questions in the basicArr.
 var askBasicCard = function(numCards){
-	console.log("number of cards remaining: "+numCards);
+	// Condition for when to stop asking questions
 	if(numCards === 0){
 		return;
 	}
@@ -52,14 +48,14 @@ var askBasicCard = function(numCards){
 	inquirer.prompt([
 	{
 		name: 'flashcard',
-		message: basicArr[numCards].front,
+		message: basicArr[numCards].front + "\nAnswer:",
 	}
 	]).then(function(ans){
 		if(ans.flashcard === basicArr[numCards].back){
-			console.log("Correct!");
+			console.log("Correct!\n\n++++++++++++++++++++\n");
 		}
 		else{
-			console.log("Incorrect. " + basicArr[numCards].back + " is the correct answer.");
+			console.log("Incorrect. " + basicArr[numCards].back + " is the correct answer.\n++++++++++++++++++++\n");
 		}
 		askBasicCard(numCards);
 	});	
@@ -67,7 +63,6 @@ var askBasicCard = function(numCards){
 
 // Recursive function to ask user questions in the clozeArr.
 var askClozeCard = function(numCards){
-	console.log("number of cards remaining: "+numCards);
 	if(numCards === 0){
 		return;
 	}
