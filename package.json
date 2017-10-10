@@ -2,7 +2,7 @@
   "name": "Flashcard-Generator",
   "version": "1.0.0",
   "description": "Backend of a flashcard app that allows you to create flashcards",
-  "main": "BasicCard.js",
+  "main": "flashcard-generator.js",
   "dependencies": {
     "inquirer": "^3.3.0"
   },

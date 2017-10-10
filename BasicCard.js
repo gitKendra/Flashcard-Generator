@@ -1,11 +1,11 @@
-// Create Constructor for Basic flashcard
+var Flashcard = require('./Flashcard.js');
+
+// Create constructor using inheritance from Flashcard
 var BasicCard = function(front, back){
 	if(!(this instanceof BasicCard)){
 		return new BasicCard(front, back);
 	}
-	this.front = front;
-	this.back = back;
+	Flashcard.call(this, front, back);
 }
 
-// Export
 module.exports = BasicCard;

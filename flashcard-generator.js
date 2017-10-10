@@ -10,6 +10,9 @@ var inquirer = require('inquirer');
 var basicArr = [];
 var clozeArr = [];
 
+// Variable to store the array of flashcards
+var arr;
+
 // Add basic flash cards from file
 for(var i = 0; i < basic.length; i++){
 	var newBasicCard = new BasicCard(basic[i].front, basic[i].back);
@@ -18,67 +21,131 @@ for(var i = 0; i < basic.length; i++){
 
 // Add cloze flash cards from file
 for(var i = 0; i < cloze.length; i++){
-	var newClozeCard = new ClozeCard(cloze[i].text, cloze[i].cloze);
+	var newClozeCard = new ClozeCard(cloze[i].fullText, cloze[i].back);
 	clozeArr.push(newClozeCard);
 }
 
-// Quiz user on flashcards
-inquirer.prompt([
-{
-	type: 'list',
-	name: 'cardType',
-	message: 'Choose which type of flashcard:',
-	choices: ['Basic card', 'Cloze card'],
+var promptCreateCard = function(){
+	inquirer.prompt([
+	{
+		type: 'list',
+		name: 'cardType',
+		message: 'Would you like to create a flashcard?',
+		choices: ['Yes, a basic card', 'Yes, a cloze card', 'No']
+	},
+	]).then(function(answer){
+		if(answer.cardType === 'No'){
+			// Store flashcards to JSON files
+			fs.writeFile('basic.json', JSON.stringify(basicArr, null, 2), 'utf8', (err)=>{
+ 	 			if (err) throw err;});
+			fs.writeFile('cloze.json', JSON.stringify(clozeArr, null, 2), 'utf8', (err)=>{
+ 	 			if (err) throw err;});
+			askQuiz();
+		}
+		else if(answer.cardType === 'Yes, a basic card'){
+			addBasicCard();
+		}
+		else{
+			addClozeCard();
+		}
+	});
 }
-]).then(function(answers){
-	console.log("");
-	if(answers.cardType === 'Basic card')
-		askBasicCard(basicArr.length);
-	else
-		askClozeCard(clozeArr.length);
-});
 
-// Recursive function to ask user questions in the basicArr.
-var askBasicCard = function(numCards){
-	// Condition for when to stop asking questions
+// Function prompt user for info and add a basic flashcard
+var addBasicCard = function(){
+	inquirer.prompt([
+	{
+		name: 'front',
+		message: 'Front of card',
+	},
+	{
+		name: 'back',
+		message: 'Back of card:'
+	}
+	]).then(function(ans){
+		var newBasicCard = new BasicCard(ans.front, ans.back);
+		basicArr.push(newBasicCard);
+		promptCreateCard();
+	});
+}
+
+// Function prompt user for info and add a cloze flashcard
+var addClozeCard = function(){
+	inquirer.prompt([
+	{
+		name: 'text',
+		message: 'Full text:',
+	},
+	{
+		name: 'cloze',
+		message: 'Cloze:'
+	}
+	]).then(function(ans){
+		var newClozeCard = new ClozeCard(ans.text, ans.cloze);
+		clozeArr.push(newClozeCard);
+		promptCreateCard();
+	});
+}
+
+// Quiz user on flashcards
+var askQuiz = function(){
+	inquirer.prompt([
+	{
+		type: 'list',
+		name: 'cardType',
+		message: 'Choose which type of flashcard to use:',
+		choices: ['Basic card', 'Cloze card'],
+	},
+	{
+		type: 'confirm',
+		name: 'confirm_quiz',
+		message: 'Ready to play?',
+		default: true
+	}
+	]).then(function(answers){
+		console.log("");
+		if(answers.confirm_quiz){
+			if(answers.cardType === 'Basic card')
+				arr = basicArr;
+			else
+				arr = clozeArr;
+		quiz(arr.length);
+		}
+		else{
+			console.log("Restart the program when ready to play.");
+		}
+	});
+}
+
+// Recursive fucntion that goes through array of flashcards
+var quiz = function(numCards){
 	if(numCards === 0){
 		return;
 	}
-	numCards--;
+	var idx = arr.length - numCards;
 	inquirer.prompt([
 	{
-		name: 'flashcard',
-		message: basicArr[numCards].front + "\nAnswer:",
+		name: 'question',
+		message: arr[idx].front + "\nAnswer:",
 	}
 	]).then(function(ans){
-		if(ans.flashcard === basicArr[numCards].back){
-			console.log("Correct!\n\n++++++++++++++++++++\n");
+		if(ans.question === arr[idx].back){
+			console.log("Correct!\n");
+			console.log("++++++++++++++++++++\n");
 		}
 		else{
-			console.log("Incorrect. " + basicArr[numCards].back + " is the correct answer.\n++++++++++++++++++++\n");
+			console.log("Incorrect. " + arr[idx].back + " is the correct answer.")
+			console.log("++++++++++++++++++++\n");
 		}
-		askBasicCard(numCards);
+		numCards--;
+		quiz(numCards);
 	});	
 }
 
-// Recursive function to ask user questions in the clozeArr.
-var askClozeCard = function(numCards){
-	if(numCards === 0){
-		return;
-	}
-	numCards--;
-	inquirer.prompt([
-	{
-		name: 'flashcard',
-		message: clozeArr[numCards].partial,
-	}
-	]).then(function(ans){
-		if(ans.flashcard === clozeArr[numCards].cloze){
-			console.log("Correct! " + clozeArr[numCards].fullText);
-		}
-		else{
-			console.log("Incorrect. " + clozeArr[numCards].fullText);
-		}
-		askClozeCard(numCards);
-	});
+promptCreateCard();
+
+module.exports = {
+	basicArr: basicArr,
+	clozeArr: clozeArr
 }
+
